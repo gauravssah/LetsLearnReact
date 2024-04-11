@@ -15,7 +15,7 @@ To get started with the Currency Converter App, follow these steps:
 1. Clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/your-username/currency-converter-app.git
+git clone https://github.com/gauravssah/currency-converter-app.git
 ```
 
 
