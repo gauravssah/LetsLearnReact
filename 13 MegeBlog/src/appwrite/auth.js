@@ -1,6 +1,8 @@
 import conf from '../conf/conf';
 import { Client, Account, ID } from "appwrite";
 
+// 33:52
+
 export class AuthService {
     client = new Client();
     account;
@@ -63,4 +65,5 @@ export class AuthService {
 const authService = new AuthService();
 
 export default authService;
+
 
