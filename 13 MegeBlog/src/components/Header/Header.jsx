@@ -67,8 +67,8 @@ function Header() {
                 </nav>
             </Container>
         </header>
-    ) 
     )
+
 }
 
 export default Header
