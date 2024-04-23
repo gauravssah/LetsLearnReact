@@ -5,7 +5,7 @@ import { Button, Container } from "../components";
 import parse from "html-react-parser";
 import { useSelector } from "react-redux";
 
-function Post() {
+export default function Post() {
     const [post, setPost] = useState(null);
     const { slug } = useParams();
     const navigate = useNavigate();
@@ -60,10 +60,8 @@ function Post() {
                 </div>
                 <div className="browser-css">
                     {parse(post.content)}
-                </div>
+                    </div>
             </Container>
         </div>
     ) : null;
 }
-
-export default Post

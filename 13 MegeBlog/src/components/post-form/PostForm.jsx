@@ -1,81 +1,74 @@
-import React, { useCallback } from 'react';
-import { useForm } from 'react-hook-form';
-import { Button, Input, Select, RTE } from "../index";
+import React, { useCallback } from "react";
+import { useForm } from "react-hook-form";
+import { Button, Input, RTE, Select } from "..";
 import appwriteService from "../../appwrite/config";
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-function PostForm({ post }) {
+export default function PostForm({ post }) {
     const { register, handleSubmit, watch, setValue, control, getValues } = useForm({
         defaultValues: {
-            title1: post?.title1 || '',
-            slug: post?.slug || '',
-            content1: post?.slug || '',
-            status1: post?.status1 || 'active',
+            title: post?.title || "",
+            slug: post?.$id || "",
+            content: post?.content || "",
+            status: post?.status || "active",
         },
-    })
+    });
 
     const navigate = useNavigate();
-    const userData = useSelector(state => state.user.userData);
+    const userData = useSelector((state) => state.auth.userData);
 
     const submit = async (data) => {
         if (post) {
-            const file = data.image[0] ? appwriteService.uploadFile(data.image[0]) : null;
+            const file = data.image[0] ? await appwriteService.uploadFile(data.image[0]) : null;
 
             if (file) {
-                appwriteService.deleteFile(post.featuredimage1)
-            }
-            const dbPost = await appwriteService.updatePost(post.$id, {
-                ...data,
-                featuredimage1: file ? file.$id : undefined,
-            })
-            if (dbPost) {
-                navigate(`/post/${dbPost.$id}`)
+                appwriteService.deleteFile(post.featuredImage);
             }
 
+            const dbPost = await appwriteService.updatePost(post.$id, {
+                ...data,
+                featuredImage: file ? file.$id : undefined,
+            });
+
+            if (dbPost) {
+                navigate(`/post/${dbPost.$id}`);
+            }
         } else {
             const file = await appwriteService.uploadFile(data.image[0]);
 
             if (file) {
-                const fileId = file.$id
-                data.featuredimage1 = fileId
-                const dbPost = await appwriteService.createPost({
-                    ...data,
-                    userId1: userData.$id,
-                })
+                const fileId = file.$id;
+                data.featuredImage = fileId;
+                const dbPost = await appwriteService.createPost({ ...data, userId: userData.$id });
+
                 if (dbPost) {
-                    navigate(`/post/${dbPost.$id}`)
+                    navigate(`/post/${dbPost.$id}`);
                 }
             }
-
         }
-
-    }
+    };
 
     const slugTransform = useCallback((value) => {
-        if (value && typeof value === 'string') {
+        if (value && typeof value === "string")
             return value
                 .trim()
                 .toLowerCase()
-                .replace(/^[a-zA-Z\d\s]+/g, '-')
-                .replace(/\s/g, '-')
-        }
-        return ''
-    }, [])
+                .replace(/[^a-zA-Z\d\s]+/g, "-")
+                .replace(/\s/g, "-");
+
+        return "";
+    }, []);
 
     React.useEffect(() => {
         const subscription = watch((value, { name }) => {
-            if (name === 'title1') {
-                setValue('slug', slugTransform(value.title1,
-                    { shouldValidate: true }))
+            if (name === "title") {
+                setValue("slug", slugTransform(value.title), { shouldValidate: true });
             }
-        })
+        });
 
-        return () => {
-            subscription.unsubscribe();
-        }
-
-    }, [watch, slugTransform, setValue])
+        return () => subscription.unsubscribe();
+    }, [watch, slugTransform, setValue]);
 
     return (
         <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
@@ -84,7 +77,7 @@ function PostForm({ post }) {
                     label="Title :"
                     placeholder="Title"
                     className="mb-4"
-                    {...register("title1", { required: true })}
+                    {...register("title", { required: true })}
                 />
                 <Input
                     label="Slug :"
@@ -95,7 +88,7 @@ function PostForm({ post }) {
                         setValue("slug", slugTransform(e.currentTarget.value), { shouldValidate: true });
                     }}
                 />
-                <RTE label="Content :" name="content1" control={control} defaultValue={getValues("content1")} />
+                <RTE label="Content :" name="content" control={control} defaultValue={getValues("content")} />
             </div>
             <div className="w-1/3 px-2">
                 <Input
@@ -108,8 +101,8 @@ function PostForm({ post }) {
                 {post && (
                     <div className="w-full mb-4">
                         <img
-                            src={appwriteService.getFilePreview(post.featuredimage1)}
-                            alt={post.title1}
+                            src={appwriteService.getFilePreview(post.featuredImage)}
+                            alt={post.title}
                             className="rounded-lg"
                         />
                     </div>
@@ -125,9 +118,5 @@ function PostForm({ post }) {
                 </Button>
             </div>
         </form>
-    )
+    );
 }
-
-// 7:23:35
-
-export default PostForm
